@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  aws-project-siecola:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: leovilela100/aws-project-siecola:${IMAGE_VERSION}
+    ports:
+      - '8080:8080'
