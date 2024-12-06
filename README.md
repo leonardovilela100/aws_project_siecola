@@ -1,2 +1,2 @@
 # aws_project_siecola
- Criando microsserviços em Java com AWS ECS Fargate e AWS CDK
+Microsserviços em Java para criação de produtos e envio de notificações utilizando o Amazon SNS (Simple Notification Service), permitindo a integração e consumo dessas notificações por outros microsserviços.
