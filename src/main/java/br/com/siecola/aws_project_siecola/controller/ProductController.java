@@ -1,7 +1,12 @@
 package br.com.siecola.aws_project_siecola.controller;
 
-import br.com.siecola.aws_project_siecola.model.Product;
+import br.com.siecola.aws_project_siecola.config.local.SnsCreate;
+import br.com.siecola.aws_project_siecola.entity.Product;
+import br.com.siecola.aws_project_siecola.enums.EventType;
 import br.com.siecola.aws_project_siecola.repository.ProductRepository;
+import br.com.siecola.aws_project_siecola.service.ProductPublisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +18,17 @@ import java.util.Optional;
 @RequestMapping("api/products")
 public class ProductController {
 
+
     public ProductRepository productRepository;
 
+    public ProductPublisher productPublisher;
+
+    public final Logger LOG = LoggerFactory.getLogger(SnsCreate.class);
+
     @Autowired
-    public ProductController(ProductRepository productRepository) {
+    public ProductController(ProductRepository productRepository, ProductPublisher productPublisher) {
         this.productRepository = productRepository;
+        this.productPublisher = productPublisher;
     }
 
     @GetMapping
@@ -34,6 +45,8 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
         Product productCreated = productRepository.save(product);
+        productPublisher.PublisherProductEvent(productCreated, EventType.PRODUCT_CREATED, "User");
+        LOG.info("Sucess in create Product:  {}", product.toString());
         return new ResponseEntity<Product>(productCreated, HttpStatus.CREATED);
     }
 
@@ -42,6 +55,8 @@ public class ProductController {
         if(productRepository.existsById(id)) {
             product.setId(id);
             Product productUpdated = productRepository.save(product);
+            productPublisher.PublisherProductEvent(productUpdated, EventType.PRODUCT_UPDATE, "subUser");
+            LOG.info("Sucess updated Product:  {}", productUpdated.toString());
             return new ResponseEntity<Product>(productUpdated,HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -54,6 +69,8 @@ public class ProductController {
         if(optionalProduct.isPresent()) {
             Product product = optionalProduct.get();
             productRepository.delete(product);
+            productPublisher.PublisherProductEvent(product, EventType.PRODUCT_DELETED, "ADM");
+            LOG.info("Sucess  delete Product:  {}", product.toString());
             return new ResponseEntity<Product>(product, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
