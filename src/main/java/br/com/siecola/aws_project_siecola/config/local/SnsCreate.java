@@ -21,7 +21,6 @@ public class SnsCreate {
     public final Logger LOG = LoggerFactory.getLogger(SnsCreate.class);
 
     private final String productEventsTopic;
-
     private final AmazonSNS snsCliente;
 
     public SnsCreate() {

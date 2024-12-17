@@ -1,27 +1,26 @@
-# Leia a versão atual do arquivo version.txt
+# Le a versão atual do arquivo version.txt
 $IMAGE_VERSION = Get-Content -Path "version.txt"
 
-# Incrementar a versão
-# Separar os números da versão (exemplo: 1.0.10 -> [1, 0, 10])
+# Incrementa a versão
 $versionParts = $IMAGE_VERSION -split '\.'
 
-# Incrementar a última parte da versão
+# Incrementa a última parte da versão
 $versionParts[-1] = [int]$versionParts[-1] + 1
 
-# Reconstruir a versão (exemplo: [1, 0, 11] -> 1.0.11)
+# Reconstrução da versão
 $NEW_VERSION = ($versionParts -join '.')
 
-# Atualizar o arquivo version.txt com a nova versão
+# Atualiza o arquivo version.txt com a nova versão
 Set-Content -Path "version.txt" -Value $NEW_VERSION
 
 Write-Output "Nova versão gerada: $NEW_VERSION"
 
-# Defina a tag da imagem
+# Define a tag da imagem
 $IMAGE_TAG = "leovilela100/aws-project-siecola:$NEW_VERSION"
 
 Write-Output "Construindo a imagem Docker com a tag: $IMAGE_TAG"
 
-# Construa a imagem usando o docker-compose com a nova versão
+# Reconstrução da imagem usando o docker-compose com a nova versão
 $env:IMAGE_VERSION = $NEW_VERSION
 docker-compose build
 if ($LASTEXITCODE -ne 0) {
@@ -29,14 +28,14 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# Logar no Docker Hub
+# Loga no Docker Hub
 docker login
 if ($LASTEXITCODE -ne 0) {
     Write-Output "Erro ao fazer login no Docker Hub."
     exit 1
 }
 
-# Fazer o push da nova versão para o Docker Hub
+# Faz o push da nova versão para o Docker Hub
 Write-Output "Enviando a imagem $IMAGE_TAG para o Docker Hub..."
 docker push $IMAGE_TAG
 if ($LASTEXITCODE -ne 0) {
